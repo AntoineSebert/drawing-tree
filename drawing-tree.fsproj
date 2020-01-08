@@ -10,6 +10,7 @@
     <Compile Include="Ast.fs" />
     <Compile Include="Tree.fs" />
     <Compile Include="ASTConverter.fs" />
+    <Compile Include="FastConcat.fs" />
     <Compile Include="Test.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
