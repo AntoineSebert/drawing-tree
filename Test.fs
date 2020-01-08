@@ -51,21 +51,34 @@ let test_guarded_command = GC([
 
 open FastConcat
 
-let test_fast_concatenation =
-    let timer_concat = System.Diagnostics.Stopwatch.StartNew()
+/// Tests the fact concatenation method involving StringBuilder against the basic string concatenation method.
+///
+/// @param      iterations  the number of iterations
+/// @returns    a tuple containing two timers, the first being the result of the basic method,
+///             the second the result of the fast method
+///
+/// Sample use:
+/// ```
+/// let basic, concat, fast_concat = test_fast_concatenation 10000
+/// printfn "basic:\t\t%f\nconcat:\t\t%f\nfast concat\t%f" basic concat fast_concat
+/// ```
+let test_fast_concatenation (iterations: int) =
 
+    let timer_basic = System.Diagnostics.Stopwatch.StartNew()
     let mutable test_string = ""
-    for i = 0 to 10000 do
+    for i = 0 to iterations do
         test_string <- test_string + "test,"
+    timer_basic.Stop()
 
+    let timer_concat = System.Diagnostics.Stopwatch.StartNew()
+    let test_string = ""
+    for i=0 to iterations do String.concat test_string ["test,"]
     timer_concat.Stop()
 
     let timer_fast_concat = System.Diagnostics.Stopwatch.StartNew()
-
     let builder = new System.Text.StringBuilder()
-    for i=0 to 10000 do builder ++"test," |> ignore
+    for i=0 to iterations do builder ++"test," |> ignore
     builder.ToString()
-
     timer_fast_concat.Stop()
 
-    timer_concat.Elapsed.TotalMilliseconds, timer_fast_concat.Elapsed.TotalMilliseconds
+    timer_basic.Elapsed.TotalMilliseconds, timer_concat.Elapsed.TotalMilliseconds, timer_fast_concat.Elapsed.TotalMilliseconds
