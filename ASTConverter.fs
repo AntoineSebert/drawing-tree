@@ -13,7 +13,8 @@ exception SyntaxError of string * string * int
 /// @returns    a generic Tree
 let rec parse_type (token: Typ): Tree<string> =
     match token with
-    | ITyp | BTyp                           -> Node(token.GetType().Name, [])
+    | ITyp                                  -> Node("ITyp", [])
+    | BTyp                                  -> Node("BTyp", [])
     | ATyp(arr_type, opt_size)              -> Node("ATyp", [parse_type arr_type;
         match opt_size with
         | Some(size)    -> Node(string size, [])
