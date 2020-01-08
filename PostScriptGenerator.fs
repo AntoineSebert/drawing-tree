@@ -1,7 +1,37 @@
 module DrawingTree.PostScriptGenerator
 
-open Tree
-open System.IO
+open DrawingTree.Tree
+
+//  Getting the minimum, maximum of x on tree
+
+let min x y = if x > y then y else x
+let max x y = if x > y then x else y
+
+let rec getMax tree maxx =
+    let rec getMax' children maxx =
+        match children with
+        | [] -> maxx
+        | child::children -> max (getMax child maxx) (getMax' children maxx)
+    match tree with
+    | Node((_,x),children) -> max x (getMax' children maxx)
+
+let rec getMin tree minx =
+    let rec getMin' children minx =
+        match children with
+        | [] -> minx
+        | child::children -> min (getMin child minx) (getMin' children minx)
+    match tree with
+    | Node((_,x),children) -> min x (getMin' children minx)
+
+let rec getDepth tree x =
+    let rec getDepth' children x =
+        match children with
+        | [] -> x
+        | child::children -> max (getDepth child x) (getDepth' children x)
+    match tree with
+    | Node(_,children) -> max x (getDepth' children (x+1))
+
+// Updating the size of the tree and remembering the previous x values
 
 let rec updateSize tree size prevx =
     let rec updateSizeChildren children size prevx =
@@ -11,27 +41,13 @@ let rec updateSize tree size prevx =
     match tree with
     | Node((a,x),children) -> Node((a,(prevx+x)*size),updateSizeChildren children size (x+prevx))
 
-// Synthesizing to PostScript
-
-let initText = "%!\n<</PageSize[1400 1000]/ImagingBBox null>> setpagedevice\n1 1 scale\n700 999 translate\nnewpath\n/Times-Roman findfont 10 scalefont setfont\n"
+let initText tree ysize = "%!\n<</PageSize[" + string (200.0+(getMax tree 0.0)-(getMin tree 0.0)) + " " + string ((getDepth tree 0) * ysize) + "]/ImagingBBox null>> setpagedevice\n1 1 scale\n " + string (100.0-(getMin tree 0.0)) + " " + string ((getDepth tree 0) * ysize - 1) + " translate\nnewpath\n/Times-Roman findfont 10 scalefont setfont\n"
 
 let writeLabel label =  " (" + string label + ")" + " dup stringwidth pop 2 div neg 0 rmoveto show\n"
-
-// Draw a line from the middle of the height
-// The line should be the length of the 
-// let rec lineWidth children = 
-//     match children with
-//     | [] -> []
-//     | Node((_,x),_)::children -> (int x)::drawLine children
 
 let getSize child =
     match child with
     | Node((_,x),_) -> x
-
-// let rec adjustWidthToMiddle line =
-//     match line with
-//     | [] -> []
-//     | h::line -> (h-(getSize line)/2)::adjustWidthToMiddle line size
 
 let moveto x y = string x + " " + string y + " moveto\n"
 let lineto x y = string x + " " + string y + " lineto\n"
@@ -42,11 +58,11 @@ let drawMiddleLine children y =
     let rec drawMiddleLine' children y = 
         match children with
         | [] -> "" // No children: No line
-        | Node((_,x),_)::[] -> lineto x y // Last element: Draw line to
+        | [Node((_,x),_)] -> lineto x y // Last element: Draw line to
         | Node((_,x),_)::children -> drawMiddleLine' children y // The list is not empty: Go to next child
     match children with
     | [] -> ""
-    | Node((_,x),_)::[] -> "" // If it is the only element - no need to draw a line
+    | [Node((_,x),_)] -> "" // If it is the only element - no need to draw a line
     | Node((_,x),_)::children -> moveto x y + drawMiddleLine' children y
     
 let drawFirstLine x y children =
@@ -54,14 +70,6 @@ let drawFirstLine x y children =
     | [] -> "" // No children: No line
     | _ -> drawLine x (y-10.0) x (y-40.0)
 
-
 let rec drawLines tree y =
     match tree with
-    | Node((label,x:float),children) -> (moveto x y) + (writeLabel (string label)) + (drawFirstLine x y children) + (drawMiddleLine children (y-40.0)) + (List.fold (fun acc elem -> acc+drawLine (getSize elem) (y-40.0) (getSize elem) (y-80.0)) "" children) + "stroke\n" + List.fold (fun acc elem -> acc+drawLines elem (y-90.0)) "" children
-
-let generateTree tree = File.WriteAllText("file1.ps", (initText + (drawLines tree -10.0) + "showpage"))
-
-let timer = new System.Diagnostics.Stopwatch()
-timer.Start()
-generateTree (updateSize (design testTree) 100.0 0.0)
-printfn "Elapsed Time: %i" timer.ElapsedMilliseconds;;
+    | Node((label,x:float),children) -> (moveto x y) + (writeLabel (string label)) + (drawFirstLine x y children) + (drawMiddleLine children (y-40.0)) + (List.fold (fun acc elem -> acc+drawLine (getSize elem) (y-40.0) (getSize elem) (y-80.0)) "" children) + ("stroke\n") + (List.fold (fun acc elem -> acc+drawLines elem (y-90.0)) "" children)

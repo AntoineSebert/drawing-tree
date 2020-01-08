@@ -11,6 +11,7 @@
     <Compile Include="Tree.fs" />
     <Compile Include="ASTConverter.fs" />
     <Compile Include="FastConcat.fs" />
+    <Compile Include="PostScriptGenerator.fs" />
     <Compile Include="Test.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
