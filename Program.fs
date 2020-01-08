@@ -22,9 +22,6 @@ let main argv =
     let ast = P(test_declarations, [PrintLn(B(true))])
     let generic_tree = convert ast
 
-    let result = test_fast_concatenation
-    printfn "%f:%f" (fst result) (snd result)
-
     let sb = System.Text.StringBuilder()
 
     let min x y = if x > y then y else x
@@ -77,8 +74,8 @@ let main argv =
 
     let drawLine xs ys xe ye = (moveto xs ys) + (lineto xe ye)
 
-    let drawMiddleLine children y = 
-        let rec drawMiddleLine' children y = 
+    let drawMiddleLine children y =
+        let rec drawMiddleLine' children y =
             match children with
             | [] -> "" // No children: No line
             | [Node((_,x),_)] -> lineto x y // Last element: Draw line to
@@ -87,7 +84,7 @@ let main argv =
         | [] -> ""
         | [Node((_,x),_)] -> "" // If it is the only element - no need to draw a line
         | Node((_,x),_)::children -> moveto x y + drawMiddleLine' children y
-        
+
     let drawFirstLine x y children =
         match children with
         | [] -> "" // No children: No line
