@@ -76,7 +76,6 @@ and parse_stmt (token: Stm): Tree<string> =
     | Do(gc)                            -> Node("Do", [parse_gc gc])
     | Block(declarations, statements)   -> Node("Block", List.append (List.map parse_decl declarations) (List.map parse_stmt statements))
     | Call(name, expressions)   -> Node("Call", Node(name, [])::(List.map parse_expr expressions))
-    | _                                 -> raise(SyntaxError("Statement error:", "Excepected a VarDec or FunDec.", 0))
 
 /// Parse a Declaration into a Node.
 ///
