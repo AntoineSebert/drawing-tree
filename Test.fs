@@ -48,3 +48,24 @@ let test_guarded_command = GC([
     B(true), [PrintLn(N(25))];
     N(25), [PrintLn(N(25))];
 ])
+
+open FastConcat
+
+let test_fast_concatenation =
+    let timer_concat = System.Diagnostics.Stopwatch.StartNew()
+
+    let mutable test_string = ""
+    for i = 0 to 10000 do
+        test_string <- test_string + "test,"
+
+    timer_concat.Stop()
+
+    let timer_fast_concat = System.Diagnostics.Stopwatch.StartNew()
+
+    let builder = new System.Text.StringBuilder()
+    for i=0 to 10000 do builder ++"test," |> ignore
+    builder.ToString()
+
+    timer_fast_concat.Stop()
+
+    timer_concat.Elapsed.TotalMilliseconds, timer_fast_concat.Elapsed.TotalMilliseconds
