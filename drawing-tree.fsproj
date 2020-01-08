@@ -10,6 +10,7 @@
     <Compile Include="Ast.fs" />
     <Compile Include="Tree.fs" />
     <Compile Include="ASTConverter.fs" />
+    <Compile Include="PostScriptGenerator.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

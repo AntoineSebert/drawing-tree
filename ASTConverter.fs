@@ -83,6 +83,6 @@ let convert (program: Program): Tree<'a> =
     let tree =
         match program with
         | P(declarations, statements) ->
-            Node("test", [for dec in declarations do parse_decl dec; for stmt in statements do parse_stmt stmt])
+            Node("Program", [for dec in declarations do parse_decl dec; for stmt in statements do parse_stmt stmt])
 
     tree
